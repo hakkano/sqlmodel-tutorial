@@ -5,28 +5,27 @@ from sqlmodel.pool import StaticPool
 
 from .main import Hero, app, get_session
 
+
 @pytest.fixture(name="session")
 def session_fixture():
     engine = create_engine(
-                "sqlite://", connect_args={"check_same_thread": False},
-                poolclass=StaticPool
-        )
+        "sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool
+    )
     SQLModel.metadata.create_all(engine)
-
     with Session(engine) as session:
-           yield session
-      
+        yield session
+
 
 @pytest.fixture(name="client")
 def client_fixture(session: Session):
-        def get_session_override():
-                return session
-        
-        app.dependency_overrides[get_session] = get_session_override
-        client = TestClient(app) 
-        yield client
-        app.dependency_overrides.clear()
-       
+    def get_session_override():
+        return session
+
+    app.dependency_overrides[get_session] = get_session_override
+    client = TestClient(app)
+    yield client
+    app.dependency_overrides.clear()
+
 
 def test_create_hero(client: TestClient):
     response = client.post(
@@ -58,6 +57,7 @@ def test_create_hero_invalid(client: TestClient):
     )
     assert response.status_code == 422
 
+
 def test_read_heroes(session: Session, client: TestClient):
     hero_1 = Hero(name="Deadpond", secret_name="Dive Wilson")
     hero_2 = Hero(name="Rusty-Man", secret_name="Tommy Sharp", age=48)
@@ -79,6 +79,7 @@ def test_read_heroes(session: Session, client: TestClient):
     assert data[1]["secret_name"] == hero_2.secret_name
     assert data[1]["age"] == hero_2.age
     assert data[1]["id"] == hero_2.id
+
 
 def test_read_hero(session: Session, client: TestClient):
     hero_1 = Hero(name="Deadpond", secret_name="Dive Wilson")

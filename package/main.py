@@ -3,6 +3,21 @@ from typing import List, Optional
 from fastapi import FastAPI, HTTPException, Query, Depends
 from sqlmodel import Field, Relationship,Session, SQLModel, create_engine, select
 
+class TeamBase(SQLModel):
+    name: str = Field(index=True)
+    headquarters: str
+
+class Team(TeamBase, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+
+    heroes: List["Hero"] = Relationship(back_populates="team")
+
+class TeamCreate(TeamBase):
+    pass
+
+class TeamRead(TeamBase):
+    id: int
+
 
 class HeroBase(SQLModel):
     name: str = Field(index=True)
@@ -32,20 +47,6 @@ class HeroUpdate(SQLModel):
     age: Optional[int] = None
     team_id: Optional[int] = None
 
-class TeamBase(SQLModel):
-    name: str = Field(index=True)
-    headquarters: str
-
-class Team(TeamBase, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-
-    heroes: List[Hero] = Relationship(back_populates="team")
-
-class TeamCreate(TeamBase):
-    pass
-
-class TeamRead(TeamBase):
-    id: int
 
 class TeamUpdate(SQLModel):
     name: Optional[str] = None
