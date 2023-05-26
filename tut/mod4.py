@@ -12,7 +12,7 @@ class Team(SQLModel, table=True):
     name: str = Field(index=True)
     headquarters: str
 
-    heroes: List["Hero"] = Relationship(back_populates="team", link_model=HeroTeamLink)
+    heroes: List["Hero"] = Relationship(back_populates="teams", link_model=HeroTeamLink)
 
 
 class Hero(SQLModel, table=True):
